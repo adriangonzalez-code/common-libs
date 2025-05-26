@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.driagon.services.logging.config.LoggingAutoConfiguration
