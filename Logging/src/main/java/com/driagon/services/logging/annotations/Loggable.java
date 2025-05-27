@@ -1,6 +1,6 @@
 package com.driagon.services.logging.annotations;
 
-import org.slf4j.event.Level;
+import com.driagon.services.logging.constants.Level;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

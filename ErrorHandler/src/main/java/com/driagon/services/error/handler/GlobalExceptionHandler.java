@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
         ErrorResponse error = new ErrorResponse();
         error.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.name());
         error.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        error.setMessage("Error interno del servidor");
+        error.setMessage(ex.getMessage());
         error.setPath(request.getDescription(false));
 
         log.error("Uncaught exception: {}", error);

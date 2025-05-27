@@ -23,24 +23,22 @@ public class LoggingAspect {
         String methodName = joinPoint.getSignature().getName();
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Loggable loggable = getLoggableAnnotation(signature);
+        String message = loggable.message();
 
         try {
-            // Log entrada
             if (loggable.includeArgs()) {
-                loggingService.logEntry(methodName, joinPoint.getArgs(), loggable.level());
+                loggingService.logEntry(methodName, joinPoint.getArgs(), loggable.level(), message);
             }
 
             long startTime = System.currentTimeMillis();
             Object result = joinPoint.proceed();
             long duration = System.currentTimeMillis() - startTime;
 
-            // Log salida
             if (loggable.includeResult()) {
-                loggingService.logExit(methodName, result, duration, loggable.level());
+                loggingService.logExit(methodName, result, duration, loggable.level(), message);
             }
 
             return result;
-
         } catch (Exception ex) {
             if (loggable.logUnexpectedExceptions() || loggable.exceptions().length > 0) {
                 loggingService.logException(

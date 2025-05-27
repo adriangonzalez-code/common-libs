@@ -1,27 +1,32 @@
 package com.driagon.services.logging.services;
 
 import com.driagon.services.logging.annotations.ExceptionLog;
+import com.driagon.services.logging.constants.Level;
 import com.driagon.services.logging.utils.MaskingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import java.util.Arrays;
 import java.util.Optional;
 
 public class LoggingService {
 
-    public void logEntry(String methodName, Object[] args, Level level) {
+    public void logEntry(String methodName, Object[] args, Level level, String message) {
         Logger logger = LoggerFactory.getLogger(methodName);
         String maskedArgs = MaskingUtils.maskSensitiveData(args);
-        log(logger, level, "Entrada - Método: {} - Argumentos: {}", methodName, maskedArgs);
+        String logMessage = message.isEmpty() ?
+                "Entrada - Método: {} - Argumentos: {}" :
+                message + " - Entrada - Método: {} - Argumentos: {}";
+        log(logger, level, logMessage, methodName, maskedArgs);
     }
 
-    public void logExit(String methodName, Object result, long duration, Level level) {
+    public void logExit(String methodName, Object result, long duration, Level level, String message) {
         Logger logger = LoggerFactory.getLogger(methodName);
         String maskedResult = MaskingUtils.maskSensitiveData(result);
-        log(logger, level, "Salida - Método: {} - Resultado: {} - Duración: {}ms",
-                methodName, maskedResult, duration);
+        String logMessage = message.isEmpty() ?
+                "Salida - Método: {} - Resultado: {} - Duración: {}ms" :
+                message + " - Salida - Método: {} - Resultado: {} - Duración: {}ms";
+        log(logger, level, logMessage, methodName, maskedResult, duration);
     }
 
     public void logException(String methodName, Throwable ex, ExceptionLog[] expectedExceptions, Level defaultLevel) {
