@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.driagon</groupId>
+        <artifactId>java-parent</artifactId>
+        <version>21.35.1-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.driagon.services</groupId>
+    <artifactId>spring-boot-health-check-starter</artifactId>
+    <version>${spring-boot.health-check-starter.version}</version>
+    <name>HealthCheck</name>
+    <description>HealthCheck</description>
+    <properties>
+        <java.version>21</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.driagon.services</groupId>
+            <artifactId>spring-boot-logging-starter</artifactId>
+        </dependency>
+    </dependencies>
+</project>
