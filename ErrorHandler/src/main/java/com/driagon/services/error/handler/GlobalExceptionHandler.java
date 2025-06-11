@@ -4,6 +4,7 @@ import com.driagon.services.error.exceptions.BaseException;
 import com.driagon.services.error.models.ErrorDetail;
 import com.driagon.services.error.models.ErrorResponse;
 import jakarta.servlet.ServletException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -28,25 +29,27 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, ex.getStatus());
     }
 
-    @ExceptionHandler({MethodArgumentNotValidException.class})
-    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex, WebRequest request) {
+    @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class})
+    public ResponseEntity<ErrorResponse> handleValidationErrors(Exception ex, WebRequest request) {
         ErrorResponse error = new ErrorResponse();
         error.setStatus(HttpStatus.BAD_REQUEST.name());
         error.setCode(HttpStatus.BAD_REQUEST.value());
         error.setMessage("Error de validación");
         error.setPath(request.getDescription(false));
 
-        ex.getBindingResult().getFieldErrors().forEach(fieldError ->
-                error.getDetails().add(new ErrorDetail(fieldError.getField(), fieldError.getDefaultMessage(), "INVALID_FIELD"))
-        );
-
+        if (ex instanceof MethodArgumentNotValidException manvEx) {
+            manvEx.getBindingResult().getFieldErrors().forEach(err ->
+                    error.getDetails().add(new ErrorDetail(err.getField(), err.getDefaultMessage(), "INVALID_FIELD"))
+            );
+        } else if (ex instanceof ConstraintViolationException cve) {
+            cve.getConstraintViolations().forEach(violation ->
+                    error.getDetails().add(new ErrorDetail(violation.getPropertyPath().toString(), violation.getMessage(), "INVALID_FIELD"))
+            );
+        }
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Manejador unificado para todas las excepciones comunes de Spring
-     */
     @ExceptionHandler(ServletException.class)
     public ResponseEntity<ErrorResponse> handleSpringExceptions(ServletException ex, WebRequest request) {
         if (ex instanceof org.springframework.web.ErrorResponse exception) {
@@ -66,16 +69,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(fallback, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    /**
-     * Manejador por defecto para excepciones no capturadas específicamente
-     *
-     * Este manejador debe ser el último en ejecutarse (con la prioridad más baja)
-     * para permitir que los manejadores específicos se ejecuten primero.
-     */
     @ExceptionHandler(Exception.class)
     @Order
     public ResponseEntity<ErrorResponse> handleAllUncaughtException(Exception ex, WebRequest request) {
-        // Aplicar solo para excepciones que no son de Spring (ya manejadas por handleSpringExceptions)
         ErrorResponse error = new ErrorResponse();
         error.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.name());
         error.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
